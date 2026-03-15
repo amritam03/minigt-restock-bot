@@ -72,3 +72,5 @@ def check_products():
 
 
 check_products()
+
+print("bot running")
