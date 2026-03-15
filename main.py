@@ -6,7 +6,7 @@ import os
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-URL = "https://www.karzanddolls.com/collections/mini-gt"
+URL = "https://www.karzanddolls.com/details/mini+gt+/mini-gt/MTY1"
 
 headers = {
     "User-Agent": "Mozilla/5.0"
