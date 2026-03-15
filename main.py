@@ -3,8 +3,8 @@ from bs4 import BeautifulSoup
 import time
 import os
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+BOT_TOKEN = os.getenv("8651753999:AAHSbITjhYqWjZdONQBQQ4quDAuRld8c3lQ")
+CHAT_ID = os.getenv("982948994")
 
 URL = "https://www.karzanddolls.com/collections/mini-gt"
 
