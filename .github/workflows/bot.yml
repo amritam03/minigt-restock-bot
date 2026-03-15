@@ -1,8 +1,8 @@
-name: MINI GT BOT
+name: MiniGT Bot
 
 on:
   schedule:
-    - cron: "*/2 * * * *"
+    - cron: "*/1 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -10,15 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: setup python
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: "3.10"
 
-      - name: install libraries
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: run bot
+      - name: Run bot
         run: python main.py
