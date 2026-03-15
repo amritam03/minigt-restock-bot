@@ -8,7 +8,9 @@ CHAT_ID = os.getenv("CHAT_ID")
 
 URL = "https://www.karzanddolls.com/collections/mini-gt"
 
-headers = {"User-Agent": "Mozilla/5.0"}
+headers = {
+    "User-Agent": "Mozilla/5.0"
+}
 
 seen_products = {}
 
@@ -36,6 +38,8 @@ Status: {status}
 
 
 def check_products():
+
+    print("Checking products...")
 
     r = requests.get(URL, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
@@ -71,6 +75,18 @@ def check_products():
                 seen_products[title] = status
 
 
-check_products()
+print("MiniGT Bot Started")
 
-print("bot running")
+while True:
+
+    try:
+
+        check_products()
+
+        time.sleep(15)
+
+    except Exception as e:
+
+        print("Error:", e)
+
+        time.sleep(15)
