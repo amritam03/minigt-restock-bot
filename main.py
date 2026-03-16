@@ -6,7 +6,7 @@ import os
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
 
-URL = "https://www.karzanddolls.com/details/mini+gt+/mini-gt/MTY1"
+URL = "https://www.karzanddolls.com/collections/mini-gt"
 
 headers = {
     "User-Agent": "Mozilla/5.0"
@@ -16,77 +16,93 @@ seen_products = {}
 
 def send_photo(title, status, link, image):
 
-    caption = f"""
-🚗 MINI GT Update
+    caption = f"🚗 MINI GT Update\n\n{title}\nStatus: {status}\n\n{link}"
 
-{title}
-Status: {status}
-
-{link}
-"""
-
-    requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
-        data={
-            "chat_id": CHAT_ID,
-            "caption": caption
-        },
-        files={
-            "photo": requests.get(image).content
-        }
-    )
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendPhoto",
+            data={
+                "chat_id": CHAT_ID,
+                "caption": caption
+            },
+            files={
+                "photo": requests.get(image).content
+            }
+        )
+    except Exception as e:
+        print("Telegram error:", e)
 
 
 def check_products():
 
-    print("Checking products...")
+    print("Checking MINI GT products...")
 
-    r = requests.get(URL, headers=headers)
-    soup = BeautifulSoup(r.text, "html.parser")
+    try:
+        r = requests.get(URL, headers=headers, timeout=20)
+        soup = BeautifulSoup(r.text, "html.parser")
+    except Exception as e:
+        print("Website request failed:", e)
+        return
 
-    products = soup.select(".grid-product")
+    products = soup.find_all("div", class_="grid-product")
+
+    if not products:
+        print("No products found (selector issue)")
+        return
 
     for p in products:
 
-        title = p.select_one(".grid-product__title").text.strip()
-        link = "https://www.karzanddolls.com" + p.a["href"]
+        try:
+            title_tag = p.find("div", class_="grid-product__title")
 
-        img = p.select_one("img")["src"]
+            if not title_tag:
+                continue
 
-        if img.startswith("//"):
-            img = "https:" + img
+            title = title_tag.text.strip()
 
-        soldout = p.select_one(".grid-product__sold-out")
+            link_tag = p.find("a")
 
-        status = "OUT OF STOCK" if soldout else "IN STOCK"
+            if not link_tag:
+                continue
 
-        if title not in seen_products:
+            link = "https://www.karzanddolls.com" + link_tag["href"]
 
-            seen_products[title] = status
+            img_tag = p.find("img")
 
-            send_photo(title, status, link, img)
+            if not img_tag:
+                continue
 
-        else:
+            img = img_tag["src"]
 
-            if seen_products[title] == "OUT OF STOCK" and status == "IN STOCK":
+            if img.startswith("//"):
+                img = "https:" + img
 
-                send_photo(title, "RESTOCKED 🔥", link, img)
+            soldout = p.find("span", class_="grid-product__sold-out")
+
+            status = "OUT OF STOCK" if soldout else "IN STOCK"
+
+            if title not in seen_products:
 
                 seen_products[title] = status
 
+                send_photo(title, status, link, img)
 
-print("MiniGT Bot Started")
+            else:
+
+                if seen_products[title] == "OUT OF STOCK" and status == "IN STOCK":
+
+                    send_photo(title, "RESTOCKED 🔥", link, img)
+
+                    seen_products[title] = status
+
+        except Exception as e:
+            print("Product parsing error:", e)
+
+
+print("🚀 MiniGT Bot Started")
 
 while True:
 
-    try:
+    check_products()
 
-        check_products()
-
-        time.sleep(15)
-
-    except Exception as e:
-
-        print("Error:", e)
-
-        time.sleep(15)
+    time.sleep(15)
